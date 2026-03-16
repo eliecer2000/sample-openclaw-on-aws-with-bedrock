@@ -7,6 +7,7 @@
 > Based on Amazon S3 Vectors (re:Invent 2025 GA), reducing costs by **90%** compared to traditional vector databases.
 >
 > With OpenClaw Skill Router integration, Skill injection Tokens drop by **~91%** at session start (`agent:bootstrap`), reducing overall LLM bill by **~36%** (measured in Tokyo Region).
+> Once OpenClaw's `message:received` Hook supports blocking context injection ([#8807](https://github.com/openclaw/openclaw/issues/8807)), routing will apply to every turn, significantly increasing overall savings.
 
 > ℹ️ **When to use**: The Skill Router is most useful with **30+ Skills**. Below that, OpenClaw's full injection works fine — no extra setup needed.
 
