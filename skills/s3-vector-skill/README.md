@@ -5,6 +5,7 @@
 Full lifecycle management OpenClaw Skill for **Amazon S3 Vectors**, covering vector buckets, indexes, and vector data with **16 core capabilities** + a **Skill Router** subsystem that reduces overall LLM bill by ~36% at session start (`agent:bootstrap`).
 
 > ℹ️ **When to use the Router**: Most useful with **30+ Skills**. Below that, OpenClaw's full injection works fine.
+> Once `message:received` Hook supports blocking context injection ([#8807](https://github.com/openclaw/openclaw/issues/8807)), routing will apply every turn with significantly higher savings.
 
 ## What It Does
 
