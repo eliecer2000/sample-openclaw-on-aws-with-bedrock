@@ -91,17 +91,18 @@ class MockSSM:
     def __init__(self):
         self.store = {}
         # Pre-populate tenant permission profiles
-        self.store["/openclaw/demo/tenants/wa__intern_001/permissions"] = json.dumps({
+        # tenant_ids must match derive_tenant_id() output (includes hash suffix for 33+ chars)
+        self.store["/openclaw/demo/tenants/wa__intern_001__dabed44e297f43b9caa/permissions"] = json.dumps({
             "profile": "basic",
             "tools": ["web_search"],
             "data_permissions": {"file_paths": [], "api_endpoints": []},
         })
-        self.store["/openclaw/demo/tenants/tg__engineer_42/permissions"] = json.dumps({
+        self.store["/openclaw/demo/tenants/tg__engineer_42__2080fb2783090ea6836/permissions"] = json.dumps({
             "profile": "advanced",
             "tools": ["web_search", "shell", "browser", "file", "file_write", "code_execution"],
             "data_permissions": {"file_paths": ["/home/ubuntu/projects/*"], "api_endpoints": []},
         })
-        self.store["/openclaw/demo/tenants/dc__admin_99/permissions"] = json.dumps({
+        self.store["/openclaw/demo/tenants/dc__admin_99__cf7fd1dbeb8f37aef88/permissions"] = json.dumps({
             "profile": "advanced",
             "tools": ["web_search", "shell", "browser", "file", "file_write", "code_execution"],
             "data_permissions": {"file_paths": ["/*"], "api_endpoints": ["*"]},
