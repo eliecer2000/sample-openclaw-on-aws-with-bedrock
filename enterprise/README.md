@@ -1,4 +1,4 @@
-# OpenClaw Enterprise on AgentCore
+# ClawForge on AgentCore
 
 Turn [OpenClaw](https://github.com/openclaw/openclaw) from a personal AI assistant into an enterprise-grade digital workforce platform — without modifying a single line of OpenClaw source code.
 

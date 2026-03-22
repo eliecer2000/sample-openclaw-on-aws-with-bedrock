@@ -3,6 +3,7 @@ import { Send, Bot, User, Loader2, Trash2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useAuth } from '../../contexts/AuthContext';
 import { api } from '../../api/client';
+import ClawForgeLogo from '../../components/ClawForgeLogo';
 
 interface Message {
   id: number;
@@ -91,11 +92,9 @@ export default function PortalChat() {
       {/* Header */}
       <div className="flex items-center justify-between border-b border-dark-border px-6 py-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <Bot size={22} />
-          </div>
+          <ClawForgeLogo size={36} animate="idle" />
           <div>
-            <h1 className="text-sm font-semibold text-text-primary">AI Assistant</h1>
+            <h1 className="text-sm font-semibold text-text-primary">ClawForge Assistant</h1>
             <p className="text-xs text-text-muted">{user?.positionName} · {user?.departmentName}</p>
           </div>
         </div>
@@ -147,11 +146,10 @@ export default function PortalChat() {
         ))}
         {sending && (
           <div className="flex gap-3">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary mt-1">
-              <Bot size={16} />
+            <div className="shrink-0 mt-1">
+              <ClawForgeLogo size={28} animate="working" />
             </div>
             <div className="rounded-xl bg-dark-card border border-dark-border px-4 py-3 flex items-center gap-2">
-              <Loader2 size={16} className="animate-spin text-primary" />
               <span className="text-xs text-text-muted">Thinking...</span>
             </div>
           </div>

@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { MessageSquare, User, BarChart3, Puzzle, FileText, LogOut } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import ClawForgeLogo from './ClawForgeLogo';
 import clsx from 'clsx';
 
 const NAV = [
@@ -23,9 +24,9 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
       <aside className="flex w-64 flex-col border-r border-dark-border bg-dark-sidebar">
         {/* Logo */}
         <div className="flex h-16 items-center gap-3 border-b border-dark-border px-4">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-red-500 to-orange-500 text-lg">🦞</div>
+          <ClawForgeLogo size={32} animate="idle" />
           <div>
-            <div className="text-sm font-semibold text-text-primary">OpenClaw Portal</div>
+            <div className="text-sm font-semibold text-text-primary">ClawForge Portal</div>
             <div className="text-xs text-text-muted">{user?.name || 'Employee'}</div>
           </div>
         </div>

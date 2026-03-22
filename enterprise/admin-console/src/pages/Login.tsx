@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Bot, LogIn, AlertCircle } from 'lucide-react';
+import ClawForgeLogo from '../components/ClawForgeLogo';
 
 const DEMO_ACCOUNTS = [
   { id: 'emp-z3', name: 'Zhang San', role: 'Admin', dept: 'Engineering', desc: 'Full platform access' },
@@ -43,8 +44,8 @@ export default function Login() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-red-500 to-orange-500 text-white text-3xl mb-4">🦞</div>
-          <h1 className="text-2xl font-bold text-text-primary">OpenClaw Enterprise</h1>
+          <div className="inline-flex mb-4"><ClawForgeLogo size={56} animate="idle" /></div>
+          <h1 className="text-2xl font-bold text-text-primary">ClawForge</h1>
           <p className="text-sm text-text-muted mt-1">on AgentCore · aws-samples</p>
         </div>
 

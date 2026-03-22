@@ -36,3 +36,32 @@ body {
 .apexcharts-tooltip-title { background: #1a1c23 !important; border-bottom: 1px solid #2e3039 !important; }
 .apexcharts-xaxistooltip, .apexcharts-yaxistooltip { background: #24262d !important; border: 1px solid #2e3039 !important; color: #e2e8f0 !important; }
 .apexcharts-legend-text { color: #94a3b8 !important; }
+
+/* === ClawForge Logo Animations === */
+@keyframes forge-sparkle {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.4); }
+}
+@keyframes forge-spark-burst {
+  0% { opacity: 1; transform: scale(1) translateY(0); }
+  100% { opacity: 0; transform: scale(0.5) translateY(-4px); }
+}
+@keyframes forge-hammer {
+  0%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-3px); }
+  60% { transform: translateY(1px); }
+}
+@keyframes forge-glow {
+  0%, 100% { opacity: 0.15; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.1); }
+}
+@keyframes forge-working {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.animate-forge-sparkle { animation: forge-sparkle 3s ease-in-out infinite; }
+.animate-forge-spark-burst { animation: forge-spark-burst 0.6s ease-out infinite; }
+.animate-forge-hammer { animation: forge-hammer 0.6s cubic-bezier(.4,0,.2,1) infinite; }
+.animate-forge-glow { animation: forge-glow 1.2s ease-in-out infinite; }
+.animate-forge-working { animation: forge-working 1.2s ease-in-out infinite; }

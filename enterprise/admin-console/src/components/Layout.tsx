@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useApprovals, useAlertRules } from '../hooks/useApi';
 import { useAuth } from '../contexts/AuthContext';
+import ClawForgeLogo from './ClawForgeLogo';
 import clsx from 'clsx';
 
 interface NavItem {
@@ -167,10 +168,10 @@ export default function Layout({ children }: { children: ReactNode }) {
       >
         {/* Logo */}
         <div className="flex h-16 items-center gap-3 border-b border-dark-border px-4">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-red-500 to-orange-500 text-lg">🦞</div>
+          <ClawForgeLogo size={32} animate="idle" />
           {sidebarOpen && (
             <div className="overflow-hidden">
-              <div className="text-sm font-semibold text-text-primary truncate">OpenClaw Enterprise</div>
+              <div className="text-sm font-semibold text-text-primary truncate">ClawForge</div>
               <div className="text-[10px] text-text-muted truncate">on AgentCore · aws-samples</div>
             </div>
           )}

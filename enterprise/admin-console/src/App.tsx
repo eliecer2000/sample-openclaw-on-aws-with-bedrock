@@ -3,6 +3,8 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Layout from './components/Layout';
 import PortalLayout from './components/PortalLayout';
 
+import ClawForgeLogo from './components/ClawForgeLogo';
+
 // Pages
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
@@ -37,8 +39,8 @@ function AppRoutes() {
     return (
       <div className="flex h-screen items-center justify-center bg-dark-bg">
         <div className="text-center">
-          <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-white text-xl font-bold mb-3 animate-pulse">O</div>
-          <p className="text-sm text-text-muted">Loading...</p>
+          <ClawForgeLogo size={48} animate="working" />
+          <p className="text-sm text-text-muted mt-3">Loading...</p>
         </div>
       </div>
     );
