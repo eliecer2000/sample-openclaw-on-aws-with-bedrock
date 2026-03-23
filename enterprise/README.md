@@ -12,6 +12,24 @@ Turn [OpenClaw](https://github.com/openclaw/openclaw) from a personal AI assista
 >
 > Need a demo account? Contact [wjiad@aws](mailto:wjiad@amazon.com) to get access.
 
+## Screenshots
+
+| Admin Dashboard | Employee Portal Chat |
+|:-:|:-:|
+| ![Admin Dashboard](demo/images/04-admin-dashboard.jpeg) | ![Portal Chat](demo/images/01-portal-chat-permission-denied.jpeg) |
+
+| Agent Factory | Workspace & SOUL Editor |
+|:-:|:-:|
+| ![Agent Factory](demo/images/03-agent-factory-list.jpeg) | ![SOUL Editor](demo/images/05-workspace-manager-soul.jpeg) |
+
+| Usage & Cost | Skill Platform |
+|:-:|:-:|
+| ![Usage & Cost](demo/images/02-usage-cost-dashboard.jpeg) | ![Skill Platform](demo/images/08-skill-platform-catalog.jpeg) |
+
+| Audit & AI Insights | Employee Profile |
+|:-:|:-:|
+| ![Audit Center](demo/images/07-audit-center-ai-insights.jpeg) | ![Employee Profile](demo/images/06-portal-profile-preferences.jpeg) |
+
 ## The Problem
 
 OpenClaw is one of the most capable open-source AI agent platforms (200k+ GitHub stars). It excels at personal productivity: connecting AI to WhatsApp, Telegram, Discord, running browser automation, managing calendars. But enterprise deployments need:
