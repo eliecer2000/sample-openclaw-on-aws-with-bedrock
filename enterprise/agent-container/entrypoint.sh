@@ -190,21 +190,48 @@ echo "[entrypoint] Background sync PID=${BG_PID}"
 # =============================================================================
 cleanup() {
     echo "[entrypoint] SIGTERM — flushing workspace"
-    kill "$GATEWAY_PID" 2>/dev/null || true
-    kill "$BG_PID" 2>/dev/null || true
+
+    # Step 1: Stop server first — no new requests during shutdown
     kill "$SERVER_PID" 2>/dev/null || true
+
+    # Step 2: Signal Gateway to shut down gracefully and WAIT for it to finish.
+    # The Gateway writes session state (MEMORY.md) during graceful shutdown.
+    # Without waiting, the final sync below runs before MEMORY.md is updated.
+    kill -SIGTERM "$GATEWAY_PID" 2>/dev/null || true
+    # Give Gateway up to 15s to write memory and exit cleanly
+    for i in $(seq 1 15); do
+        kill -0 "$GATEWAY_PID" 2>/dev/null || break
+        sleep 1
+    done
+    kill -9 "$GATEWAY_PID" 2>/dev/null || true  # force-kill if still alive
+
+    # Step 3: Stop background watchdog
+    kill "$BG_PID" 2>/dev/null || true
     wait "$SERVER_PID" 2>/dev/null || true
-    # Final sync using base tenant ID
+
+    # Step 4: Final sync — now includes Gateway-written MEMORY.md
+    # Use --no-size-only for MEMORY.md and memory/ so updates are always uploaded
+    # regardless of whether the file size changed (e.g. compaction rewrites).
     FINAL_BASE=$(cat /tmp/base_tenant_id 2>/dev/null || echo "$BASE_TENANT_ID")
     if [ "$FINAL_BASE" != "unknown" ] && [ -n "$FINAL_BASE" ]; then
-        aws s3 sync "$WORKSPACE/" "s3://${S3_BUCKET}/${FINAL_BASE}/workspace/" \
+        SYNC_TARGET="s3://${S3_BUCKET}/${FINAL_BASE}/workspace/"
+
+        # Sync memory files without --size-only so all recent writes are captured
+        aws s3 sync "$WORKSPACE/memory/" "${SYNC_TARGET}memory/" \
+            --region us-east-1 --quiet 2>/dev/null || true
+        aws s3 cp "$WORKSPACE/MEMORY.md" "${SYNC_TARGET}MEMORY.md" \
+            --region us-east-1 --quiet 2>/dev/null || true
+
+        # Sync everything else with size-only (skip large unchanged files)
+        aws s3 sync "$WORKSPACE/" "$SYNC_TARGET" \
             --exclude "node_modules/*" --exclude "skills/_shared/*" --exclude "skills/*" \
             --exclude "SOUL.md" --exclude "AGENTS.md" --exclude "TOOLS.md" --exclude "IDENTITY.md" \
             --exclude ".personal_soul_backup.md" --exclude "knowledge/*" \
             --size-only \
             --region us-east-1 \
             --quiet 2>/dev/null || true
-        echo "[entrypoint] Workspace flushed to s3://${S3_BUCKET}/${FINAL_BASE}/workspace/"
+
+        echo "[entrypoint] Workspace flushed to ${SYNC_TARGET}"
     fi
     echo "[entrypoint] Done"
     exit 0

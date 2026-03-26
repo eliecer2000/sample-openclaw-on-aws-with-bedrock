@@ -62,47 +62,68 @@ DYNAMODB_REGION = os.environ.get("DYNAMODB_REGION", "us-east-2")
 
 
 def _append_conversation_turn(tenant_id: str, user_message: str, assistant_reply: str, model: str, duration_ms: int):
-    """Append a user+assistant turn to DynamoDB CONV#<tenant_id># for Session Detail view."""
+    """Append a user+assistant turn to DynamoDB CONV# AND local daily memory file.
+
+    The DynamoDB write enables Session Detail view in the Admin Console.
+    The local memory file write ensures memory persists even for short sessions
+    that never trigger OpenClaw Gateway's compaction threshold — the watchdog
+    syncs workspace/memory/{date}.md to S3 within 60s, so the next session
+    always has context regardless of session length.
+    """
+    from datetime import datetime, timezone
+    ts_dt = datetime.now(timezone.utc)
+    ts = ts_dt.isoformat()
+
+    # 1. Write to DynamoDB for Session Detail view
     try:
         import boto3 as _b3_conv
-        from datetime import datetime, timezone
         ddb = _b3_conv.resource("dynamodb", region_name=DYNAMODB_REGION)
         table = ddb.Table(DYNAMODB_TABLE)
         org_pk = "ORG#acme"
         session_sk = f"SESSION#{tenant_id[:40]}"
-        ts = datetime.now(timezone.utc).isoformat()
 
-        # Get current turn count to use as seq
         try:
             resp = table.get_item(Key={"PK": org_pk, "SK": session_sk})
             turns = int(resp.get("Item", {}).get("turns", 0))
         except Exception:
             turns = 0
 
-        seq_base = (turns - 1) * 2  # each turn has 2 messages: user + assistant
-
+        seq_base = (turns - 1) * 2
         table.put_item(Item={
-            "PK": org_pk,
-            "SK": f"CONV#{tenant_id[:40]}#{seq_base:04d}",
-            "sessionId": tenant_id[:40],
-            "seq": seq_base,
-            "role": "user",
-            "content": user_message[:2000],  # cap to avoid large items
-            "ts": ts,
+            "PK": org_pk, "SK": f"CONV#{tenant_id[:40]}#{seq_base:04d}",
+            "sessionId": tenant_id[:40], "seq": seq_base, "role": "user",
+            "content": user_message[:2000], "ts": ts,
         })
         table.put_item(Item={
-            "PK": org_pk,
-            "SK": f"CONV#{tenant_id[:40]}#{seq_base + 1:04d}",
-            "sessionId": tenant_id[:40],
-            "seq": seq_base + 1,
-            "role": "assistant",
-            "content": assistant_reply[:4000],
-            "ts": ts,
-            "model": model,
-            "durationMs": duration_ms,
+            "PK": org_pk, "SK": f"CONV#{tenant_id[:40]}#{seq_base + 1:04d}",
+            "sessionId": tenant_id[:40], "seq": seq_base + 1, "role": "assistant",
+            "content": assistant_reply[:4000], "ts": ts,
+            "model": model, "durationMs": duration_ms,
         })
     except Exception as e:
         logger.warning("CONV# write failed (non-fatal): %s", e)
+
+    # 2. Append to daily memory file — ensures memory persists for short sessions
+    # that never trigger Gateway compaction. OpenClaw reads memory/*.md at session
+    # start, so this guarantees continuity even for 1-message microVM sessions.
+    try:
+        workspace = os.environ.get("OPENCLAW_WORKSPACE", "/root/.openclaw/workspace")
+        memory_dir = os.path.join(workspace, "memory")
+        os.makedirs(memory_dir, exist_ok=True)
+        date_str = ts_dt.strftime("%Y-%m-%d")
+        time_str = ts_dt.strftime("%H:%M UTC")
+        daily_file = os.path.join(memory_dir, f"{date_str}.md")
+
+        entry = (
+            f"\n## {time_str}\n"
+            f"**User:** {user_message[:300]}\n"
+            f"**Agent:** {assistant_reply[:300]}\n"
+        )
+        with open(daily_file, "a", encoding="utf-8") as f:
+            f.write(entry)
+        logger.info("Memory checkpoint written: %s", daily_file)
+    except Exception as e:
+        logger.warning("Daily memory write failed (non-fatal): %s", e)
 
 
 def _write_usage_to_dynamodb(tenant_id: str, base_id: str, usage: dict, model: str, duration_ms: int, message: str = ""):

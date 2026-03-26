@@ -27,7 +27,8 @@
       "workspace": "/root/.openclaw/workspace",
       "skipBootstrap": true,
       "compaction": {
-        "mode": "safeguard"
+        "mode": "default",
+        "recentTurnsPreserve": 5
       }
     }
   },
