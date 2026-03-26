@@ -546,16 +546,20 @@ class AgentCoreHandler(BaseHTTPRequestHandler):
             data = invoke_openclaw(tenant_id, message, timeout=timeout)
             duration_ms = int(time.time() * 1000) - start_ms
 
-            # Extract text from openclaw JSON response
-            # Format: {"payloads": [{"text": "..."}], "meta": {...}}
-            payloads = data.get("payloads", [])
+            # Extract text from openclaw JSON response.
+            # Embedded mode:  {"payloads": [...], "meta": {...}}
+            # Gateway mode:   {"runId": "...", "result": {"payloads": [...], "meta": {...}}}
+            result_block = data.get("result", data)  # unwrap Gateway's "result" wrapper
+            payloads = result_block.get("payloads", [])
             response_text = " ".join(
                 p.get("text", "") for p in payloads if p.get("text")
             ).strip()
 
             if not response_text:
-                # Fallback: try top-level text field
-                response_text = data.get("text", str(data))
+                response_text = result_block.get("text", data.get("text", ""))
+            if not response_text:
+                logger.warning("Empty response_text from openclaw, raw data keys: %s", list(data.keys()))
+                response_text = "(no response)"
 
             # Plan E audit
             try:
@@ -566,7 +570,7 @@ class AgentCoreHandler(BaseHTTPRequestHandler):
             _audit_response(tenant_id, response_text, allowed)
 
             # Extract model usage for observability
-            meta = data.get("meta", {})
+            meta = result_block.get("meta", data.get("meta", {}))
             agent_meta = meta.get("agentMeta", {})
             model = agent_meta.get("model", "unknown")
             usage = agent_meta.get("usage", {})
