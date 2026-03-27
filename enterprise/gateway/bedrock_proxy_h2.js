@@ -157,11 +157,17 @@ function extractUserMessage(body) {
         userId = meta.sender_id;
         // Detect channel from metadata or message context
         if (meta.channel) channel = meta.channel.toLowerCase();
+        else if (meta.channel_type) channel = meta.channel_type.toLowerCase();
         else if (userText.includes('Discord')) channel = 'discord';
         else if (userText.includes('Telegram')) channel = 'telegram';
         else if (userText.includes('Slack')) channel = 'slack';
         else if (userText.includes('WhatsApp')) channel = 'whatsapp';
         else if (userText.includes('Feishu') || userText.includes('feishu')) channel = 'feishu';
+        // Heuristic fallback: detect channel by sender_id format when no keyword found
+        // Telegram user IDs are 7-12 digits; Discord IDs are 17-19 digits; WhatsApp uses +phone
+        else if (/^\d{7,12}$/.test(meta.sender_id)) channel = 'telegram';
+        else if (/^\d{17,19}$/.test(meta.sender_id)) channel = 'discord';
+        else if (/^\+\d{7,15}$/.test(meta.sender_id)) channel = 'whatsapp';
       }
     }
   } catch (e) { /* JSON parse failed, fall through to regex */ }
