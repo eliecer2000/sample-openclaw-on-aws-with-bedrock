@@ -597,27 +597,36 @@ def _ensure_workspace_assembled(tenant_id: str) -> None:
                         if os.path.isfile(soul_path):
                             # Build KB block with specific proactive instructions
                             kb_lines_text = "\n".join(kb_soul_lines)
-                            # Check if org directory KB is included — give explicit instruction
-                            has_org_dir = any("org-directory" in line or "Company Directory" in line
-                                              for line in kb_soul_lines)
-                            org_dir_instruction = ""
-                            if has_org_dir:
-                                org_dir_path = next(
-                                    (line.split(": ", 1)[1].rstrip() for line in kb_soul_lines
-                                     if "org-directory" in line or "Company Directory" in line), "")
-                                org_dir_instruction = (
-                                    f"\n**PROACTIVE RULE**: When the user asks about any colleague, "
-                                    f"team member, department, or who to contact for any topic, "
-                                    f"ALWAYS use the `file` tool to read {org_dir_path}company-directory.md "
-                                    f"BEFORE answering. This file lists all ACME Corp employees with their "
-                                    f"roles, responsibilities, and contact information."
-                                )
+                            # For org-directory KB: inline the content directly into SOUL.md
+                            # so the agent doesn't need to proactively read the file.
+                            org_dir_inline = ""
+                            for line in kb_soul_lines:
+                                if "org-directory" not in line and "Company Directory" not in line:
+                                    continue
+                                # Extract the directory path from the kb_soul_lines entry
+                                kb_path = line.split(": ", 1)[1].rstrip().rstrip("/") if ": " in line else ""
+                                if kb_path:
+                                    dir_file = os.path.join(kb_path, "company-directory.md")
+                                    if os.path.isfile(dir_file):
+                                        try:
+                                            with open(dir_file) as f:
+                                                dir_content = f.read()
+                                            org_dir_inline = (
+                                                "\n\n<!-- COMPANY DIRECTORY (inline) -->\n"
+                                                "The following is the complete ACME Corp employee directory. "
+                                                "Use this to answer any question about colleagues, contacts, "
+                                                "departments, or who to reach for any topic:\n\n"
+                                                + dir_content
+                                            )
+                                        except Exception:
+                                            pass
+                                break
                             kb_block = (
                                 "\n\n<!-- KNOWLEDGE BASES -->\n"
                                 "You have access to the following knowledge base documents:\n"
                                 + kb_lines_text
                                 + "\nUse the `file` tool to read these when relevant to the user's question."
-                                + org_dir_instruction
+                                + org_dir_inline
                             )
                             with open(soul_path, "a") as f:
                                 f.write(kb_block)
