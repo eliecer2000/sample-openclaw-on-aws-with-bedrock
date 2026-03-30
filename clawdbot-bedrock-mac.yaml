@@ -61,7 +61,7 @@ Parameters:
     Description: "macOS AMI ID - 'auto' uses region-specific AMI from Mappings, or specify custom AMI ID"
 
   KeyPairName:
-    Type: String
+    Type: AWS::EC2::KeyPair::KeyName
     Default: "none"
     Description: "EC2 key pair for emergency SSH access (optional - set to 'none' to skip)"
 
@@ -308,6 +308,16 @@ Resources:
         - !Ref PrivateSubnet
       SecurityGroupIds:
         - !Ref VPCEndpointSecurityGroup
+
+  S3VPCEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Condition: CreateEndpoints
+    Properties:
+      VpcId: !Ref OpenClawVPC
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.s3'
+      VpcEndpointType: Gateway
+      RouteTableIds:
+        - !Ref PublicRouteTable
 
   # ==================== IAM Role ====================
   OpenClawInstanceRole:
